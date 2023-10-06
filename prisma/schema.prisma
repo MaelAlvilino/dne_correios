@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model LOG_BAIRRO {
+  BAI_NU           Int                @id
+  UFE_SG           String?
+  LOC_NU           Int?
+  BAI_NO           String?
+  BAI_NO_ABREV     String?
+  LOG_LOCALIDADE   LOG_LOCALIDADE?    @relation(fields: [LOC_NU], references: [LOC_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_BAIRRO_LOG_LOCALIDADE1")
+  LOG_FAIXA_BAIRRO LOG_FAIXA_BAIRRO[]
+  LOG_VAR_BAI      LOG_VAR_BAI[]
+
+  @@index([LOC_NU], map: "fk_LOG_BAIRRO_LOG_LOCALIDADE1_idx")
+}
+
+model LOG_CPC {
+  CPC_NU         Int             @id
+  UFE_SG         String?
+  LOC_NU         Int?
+  CPC_NO         String?
+  CPC_ENDERECO   String?
+  CEP            String?
+  LOG_LOCALIDADE LOG_LOCALIDADE? @relation(fields: [LOC_NU], references: [LOC_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_CPC_LOG_LOCALIDADE1")
+  LOG_FAIXA_CPC  LOG_FAIXA_CPC[]
+
+  @@index([LOC_NU], map: "fk_LOG_CPC_LOG_LOCALIDADE1_idx")
+}
+
+model LOG_FAIXA_BAIRRO {
+  BAI_NU      Int?
+  FCB_CEP_INI String?
+  FCB_CEP_FIM String      @id
+  LOG_BAIRRO  LOG_BAIRRO? @relation(fields: [BAI_NU], references: [BAI_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_FAIXA_BAIRRO_LOG_BAIRRO1")
+
+  @@index([BAI_NU], map: "fk_LOG_FAIXA_BAIRRO_LOG_BAIRRO1_idx")
+}
+
+model LOG_FAIXA_CPC {
+  CPC_NU      Int?
+  CPC_INICIAL String?
+  CPC_FINAL   String
+  id          Int      @id @default(autoincrement())
+  LOG_CPC     LOG_CPC? @relation(fields: [CPC_NU], references: [CPC_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_FAIXA_CPC_LOG_CPC1")
+
+  @@index([CPC_NU], map: "fk_LOG_FAIXA_CPC_LOG_CPC1_idx")
+}
+
+model LOG_FAIXA_LOCALIDADE {
+  LOC_NU         Int?
+  LOC_CEP_INI    String?
+  LOC_TIPO_FAIXA String?
+  LOC_CEP_FIM    String
+  id             Int             @id @default(autoincrement())
+  LOG_LOCALIDADE LOG_LOCALIDADE? @relation(fields: [LOC_NU], references: [LOC_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_FAIXA_LOCALIDADE_LOG_LOCALIDADE1")
+
+  @@index([LOC_NU], map: "fk_LOG_FAIXA_LOCALIDADE_LOG_LOCALIDADE1_idx")
+}
+
+model LOG_FAIXA_UF {
+  UFE_SG      String?
+  UFE_CEP_INI String?
+  UFE_CEP_FIM String  @id
+}
+
+model LOG_FAIXA_UOP {
+  UOP_NU        Int?
+  FNC_INICIAL   Int?
+  FNC_FINAL     Int            @id
+  LOG_UNID_OPER LOG_UNID_OPER? @relation(fields: [UOP_NU], references: [UOP_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_FAIXA_UOP_LOG_UNID_OPER1")
+
+  @@index([UOP_NU], map: "fk_LOG_FAIXA_UOP_LOG_UNID_OPER1_idx")
+}
+
+model LOG_GRANDE_USUARIO {
+  GRU_NU         Int             @id
+  UFE_SG         String?
+  LOC_NU         Int?
+  BAI_NU         Int?
+  LOG_NU         Int?
+  GRU_NO         String?
+  GRU_ENDERECO   String?
+  CEP            String?
+  GRU_NO_ABREV   String?
+  LOG_LOCALIDADE LOG_LOCALIDADE? @relation(fields: [LOC_NU], references: [LOC_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_GRANDE_USUARIO_LOG_LOCALIDADE1")
+  LOG_LOGRADOURO LOG_LOGRADOURO? @relation(fields: [LOC_NU], references: [LOG_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_GRANDE_USUARIO_LOG_LOGRADOURO1")
+
+  @@index([LOC_NU], map: "fk_LOG_GRANDE_USUARIO_LOG_LOGRADOURO1_idx")
+}
+
+model LOG_LOCALIDADE {
+  LOC_NU               Int                    @id
+  UFE_SG               String?
+  LOC_NO               String?
+  CEP                  String?
+  LOC_IN_SIT           String?
+  LOC_IN_TIPO_LOC      String?
+  LOC_NU_SUB           Int?
+  LOC_NO_ABREV         String?
+  MUN_NU               String?
+  LOG_BAIRRO           LOG_BAIRRO[]
+  LOG_CPC              LOG_CPC[]
+  LOG_FAIXA_LOCALIDADE LOG_FAIXA_LOCALIDADE[]
+  LOG_GRANDE_USUARIO   LOG_GRANDE_USUARIO[]
+  LOG_LOGRADOURO       LOG_LOGRADOURO[]
+  LOG_UNID_OPER        LOG_UNID_OPER[]
+  LOG_VAR_LOC          LOG_VAR_LOC[]
+}
+
+model LOG_LOGRADOURO {
+  LOG_NU             Int                  @id
+  UFE_SG             String?
+  LOC_NU             Int?
+  BAI_NU_INI         Int?
+  BAI_NU_FIM         Int?
+  LOG_NO             String?
+  LOG_COMPLEMENTO    String?
+  CEP                String?
+  TLO_TX             String?
+  LOG_STA_TLO        String?
+  LOG_NO_ABREV       String?
+  LOG_GRANDE_USUARIO LOG_GRANDE_USUARIO[]
+  LOG_LOCALIDADE     LOG_LOCALIDADE?      @relation(fields: [LOC_NU], references: [LOC_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_LOGRADOURO_LOG_LOCALIDADE1")
+  LOG_NUM_SEC        LOG_NUM_SEC?
+  LOG_UNID_OPER      LOG_UNID_OPER[]
+  LOG_VAR_LOG        LOG_VAR_LOG[]
+
+  @@index([LOC_NU], map: "fk_LOG_LOGRADOURO_LOG_LOCALIDADE1_idx")
+}
+
+model LOG_NUM_SEC {
+  LOG_NU         Int            @id
+  SEC_NU_INI     String?
+  SEC_NU_FIM     String?
+  SEC_IN_LADO    String?
+  LOG_LOGRADOURO LOG_LOGRADOURO @relation(fields: [LOG_NU], references: [LOG_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_NUM_SEC_LOG_LOGRADOURO1")
+}
+
+model LOG_UNID_OPER {
+  UOP_NU         Int             @id
+  UFE_SG         String?
+  LOC_NU         Int?
+  BAI_NU         Int?
+  LOG_NU         Int?
+  UOP_NO         String?
+  UOP_ENDERECO   String?
+  CEP            String?
+  UOP_IN_CP      String?
+  UOP_NO_ABREV   String?
+  LOG_FAIXA_UOP  LOG_FAIXA_UOP[]
+  LOG_LOCALIDADE LOG_LOCALIDADE? @relation(fields: [LOC_NU], references: [LOC_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_UNID_OPER_LOG_LOCALIDADE1")
+  LOG_LOGRADOURO LOG_LOGRADOURO? @relation(fields: [BAI_NU], references: [LOG_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_UNID_OPER_LOG_LOGRADOURO1")
+
+  @@index([LOC_NU], map: "fk_LOG_UNID_OPER_LOG_LOCALIDADE1_idx")
+  @@index([BAI_NU], map: "fk_LOG_UNID_OPER_LOG_LOGRADOURO1_idx")
+}
+
+model LOG_VAR_BAI {
+  BAI_NU     Int?
+  VDB_NU     Int?
+  VDB_TX     String      @id
+  LOG_BAIRRO LOG_BAIRRO? @relation(fields: [BAI_NU], references: [BAI_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_VAR_BAI_LOG_BAIRRO1")
+
+  @@index([BAI_NU], map: "fk_LOG_VAR_BAI_LOG_BAIRRO1_idx")
+}
+
+model LOG_VAR_LOC {
+  LOC_NU         Int?
+  VAL_NU         Int?
+  VAL_TX         String          @id
+  LOG_LOCALIDADE LOG_LOCALIDADE? @relation(fields: [LOC_NU], references: [LOC_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_VAR_LOC_LOG_LOCALIDADE1")
+
+  @@index([LOC_NU], map: "fk_LOG_VAR_LOC_LOG_LOCALIDADE1_idx")
+}
+
+model LOG_VAR_LOG {
+  LOG_NU         Int?
+  VLO_NU         Int?
+  VLO_TX         String?
+  TLO_TX         String
+  id             Int             @id @default(autoincrement())
+  LOG_LOGRADOURO LOG_LOGRADOURO? @relation(fields: [LOG_NU], references: [LOG_NU], onDelete: NoAction, onUpdate: NoAction, map: "fk_LOG_VAR_LOG_LOG_LOGRADOURO1")
+
+  @@index([LOG_NU], map: "fk_LOG_VAR_LOG_LOG_LOGRADOURO1_idx")
+}
